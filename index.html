@@ -12,7 +12,6 @@
       margin: 0;
       padding: 0;
     }
-    /* estilos omitidos para brevedad, mantén los tuyos */
     .aerodromo {
       background: white;
       border-radius: 8px;
@@ -23,111 +22,127 @@
     .metar, .taf {
       margin-top: 0.5em;
       font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .checkbox-container {
+      padding: 1em;
+      max-width: 600px;
+      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .checkbox-container label {
+      cursor: pointer;
+      font-weight: bold;
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <!-- tu header, botones y demás -->
+
+  <h1 style="text-align:center;">Información Meteorológica - FFAA</h1>
 
   <div class="checkbox-container">
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEAB"> ALBACETE (LEAB)</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LERT"> ROTA (LERT)</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEGT"> GETAFE (LEGT)</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LETO"> TORREJÓN (LETO)</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEMG"> MÁLAGA (LEMG)</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LELC"> SAN JAVIER (LELC)</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LESA"> SALAMANCA (LESA)</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEVD"> VALLADOLID (LEVD)</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEZG"> ZARAGOZA (LEZG)</label>
+    <!-- Solo ICAO -->
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEAB"> LEAB</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LERT"> LERT</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEGT"> LEGT</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LETO"> LETO</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEMG"> LEMG</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LELC"> LELC</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LESA"> LESA</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEVD"> LEVD</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEZG"> LEZG</label>
   </div>
 
   <div id="aerodromos-container"></div>
 
-  <script>
-    const API_KEY = "SYybZksTKoBvX_zwxGfEV1PYOtstVhCVgysShs-_Vg4";
-    const alwaysVisible = ["LEBZ", "LPBJ", "LEMO"];
-    const icaoNames = {
-      LEBZ: "BADAJOZ",
-      LPBJ: "BEJA",
-      LEMO: "MORÓN",
-      LEAB: "ALBACETE",
-      LERT: "ROTA",
-      LEGT: "GETAFE",
-      LETO: "TORREJÓN",
-      LEMG: "MÁLAGA",
-      LELC: "SAN JAVIER",
-      LESA: "SALAMANCA",
-      LEVD: "VALLADOLID",
-      LEZG: "ZARAGOZA"
-    };
+<script>
+  const API_KEY = "SYybZksTKoBvX_zwxGfEV1PYOtstVhCVgysShs-_Vg4";
 
-    const container = document.getElementById("aerodromos-container");
+  const alwaysVisible = ["LEBZ", "LPBJ", "LEMO"]; // Siempre mostrar estos
 
-    async function fetchData(icao) {
-      try {
-        const [metarRes, tafRes] = await Promise.all([
-          fetch(`https://avwx.rest/api/metar/${icao}?token=${API_KEY}`),
-          fetch(`https://avwx.rest/api/taf/${icao}?token=${API_KEY}`)
-        ]);
-        const metar = await metarRes.json();
-        const taf = await tafRes.json();
-        return {
-          metar: metar?.raw || "No METAR",
-          taf: taf?.raw || "No TAF"
-        };
-      } catch (e) {
-        return {
-          metar: "Error al obtener METAR",
-          taf: "Error al obtener TAF"
-        };
-      }
+  // Mapa de nombres para presentación (puedes añadir más si quieres)
+  const icaoNames = {
+    LEBZ: "BADAJOZ",
+    LPBJ: "BEJA",
+    LEMO: "MORÓN",
+    LEAB: "ALBACETE",
+    LERT: "ROTA",
+    LEGT: "GETAFE",
+    LETO: "TORREJÓN",
+    LEMG: "MÁLAGA",
+    LELC: "SAN JAVIER",
+    LESA: "SALAMANCA",
+    LEVD: "VALLADOLID",
+    LEZG: "ZARAGOZA"
+  };
+
+  const container = document.getElementById("aerodromos-container");
+
+  async function fetchData(icao) {
+    try {
+      const [metarRes, tafRes] = await Promise.all([
+        fetch(`https://avwx.rest/api/metar/${icao}?token=${API_KEY}`),
+        fetch(`https://avwx.rest/api/taf/${icao}?token=${API_KEY}`)
+      ]);
+      const metar = await metarRes.json();
+      const taf = await tafRes.json();
+      return {
+        metar: metar?.raw || "No METAR disponible",
+        taf: taf?.raw || "No TAF disponible"
+      };
+    } catch {
+      return {
+        metar: "Error al obtener METAR",
+        taf: "Error al obtener TAF"
+      };
     }
+  }
 
-    function createCard(icao, metar, taf) {
-      const card = document.createElement("div");
-      card.className = "aerodromo";
-      card.id = `card-${icao}`;
-      const name = icaoNames[icao] || icao;
-      card.innerHTML = `
-        <h3>${name} (${icao})</h3>
-        <div class="metar"><strong>METAR:</strong> ${metar}</div>
-        <div class="taf"><strong>TAF:</strong> ${taf}</div>
-      `;
-      return card;
-    }
+  function createCard(icao, metar, taf) {
+    const card = document.createElement("div");
+    card.className = "aerodromo";
+    const name = icaoNames[icao] || icao;
+    card.innerHTML = `
+      <h3>${name} (${icao})</h3>
+      <div class="metar"><strong>METAR:</strong><br>${metar}</div>
+      <div class="taf"><strong>TAF:</strong><br>${taf}</div>
+    `;
+    return card;
+  }
 
-    async function updateDisplay() {
-      container.innerHTML = ""; // limpio todo antes
+  async function updateDisplay() {
+    container.innerHTML = ""; // limpio antes
 
-      // leo checkboxes marcados
-      const selected = Array.from(document.querySelectorAll(".aerodromo-toggle:checked"))
-        .map(cb => cb.value);
+    // Checkbox marcados (solo los seleccionados)
+    const selected = Array.from(document.querySelectorAll(".aerodromo-toggle:checked"))
+                          .map(cb => cb.value);
 
-      // uno siempre visibles + seleccionados sin duplicados
-      const totalICAOs = [...new Set([...alwaysVisible, ...selected])];
+    // Combinamos los fijos + los seleccionados SIN duplicados
+    const totalICAOs = [...new Set([...alwaysVisible, ...selected])];
 
-      // obtengo promesas para cada fetch
-      const fetchPromises = totalICAOs.map(icao => fetchData(icao));
+    // Traemos todos los datos de forma paralela
+    const fetchPromises = totalICAOs.map(icao => fetchData(icao));
+    const results = await Promise.all(fetchPromises);
 
-      // espero a que todas terminen
-      const results = await Promise.all(fetchPromises);
-
-      // limpio otra vez para asegurar y luego agrego
-      container.innerHTML = "";
-
-      results.forEach((data, i) => {
-        const card = createCard(totalICAOs[i], data.metar, data.taf);
-        container.appendChild(card);
-      });
-    }
-
-    // evento para checkbox
-    document.querySelectorAll(".aerodromo-toggle").forEach(cb => {
-      cb.addEventListener("change", updateDisplay);
+    // Ahora sí creamos y añadimos las tarjetas al contenedor
+    results.forEach((data, i) => {
+      const card = createCard(totalICAOs[i], data.metar, data.taf);
+      container.appendChild(card);
     });
+  }
 
-    // carga inicial
-    updateDisplay();
-  </script>
+  // Añadimos listener a todos los checkboxes
+  document.querySelectorAll(".aerodromo-toggle").forEach(cb => {
+    cb.addEventListener("change", updateDisplay);
+  });
+
+  // Al cargar la página, mostramos los fijos
+  updateDisplay();
+</script>
+
 </body>
 </html>
