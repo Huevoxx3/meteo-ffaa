@@ -64,7 +64,6 @@
 
   const alwaysVisible = ["LEBZ", "LPBJ", "LEMO"]; // Siempre mostrar estos
 
-  // Mapa de nombres para presentación (puedes añadir más si quieres)
   const icaoNames = {
     LEBZ: "BADAJOZ",
     LPBJ: "BEJA",
@@ -81,6 +80,9 @@
   };
 
   const container = document.getElementById("aerodromos-container");
+
+  // Control para evitar solapamientos
+  let updateVersion = 0;
 
   async function fetchData(icao) {
     try {
@@ -115,32 +117,37 @@
   }
 
   async function updateDisplay() {
-    container.innerHTML = ""; // limpio antes
+    // Incrementamos la versión al comenzar un nuevo update
+    const currentVersion = ++updateVersion;
 
-    // Checkbox marcados (solo los seleccionados)
-    const selected = Array.from(document.querySelectorAll(".aerodromo-toggle:checked"))
-                          .map(cb => cb.value);
+    // Limpiamos contenedor inmediatamente para evitar "parpadeos"
+    container.innerHTML = "";
 
-    // Combinamos los fijos + los seleccionados SIN duplicados
+    const selected = Array.from(document.querySelectorAll(".aerodromo-toggle:checked")).map(cb => cb.value);
+
     const totalICAOs = [...new Set([...alwaysVisible, ...selected])];
 
-    // Traemos todos los datos de forma paralela
+    // Fetch paralelo
     const fetchPromises = totalICAOs.map(icao => fetchData(icao));
     const results = await Promise.all(fetchPromises);
 
-    // Ahora sí creamos y añadimos las tarjetas al contenedor
+    // Solo si es la última versión continua
+    if (currentVersion !== updateVersion) {
+      // Hubo un update posterior, ignoramos este resultado
+      return;
+    }
+
+    // Ahora agregamos las tarjetas al contenedor
     results.forEach((data, i) => {
       const card = createCard(totalICAOs[i], data.metar, data.taf);
       container.appendChild(card);
     });
   }
 
-  // Añadimos listener a todos los checkboxes
   document.querySelectorAll(".aerodromo-toggle").forEach(cb => {
     cb.addEventListener("change", updateDisplay);
   });
 
-  // Al cargar la página, mostramos los fijos
   updateDisplay();
 </script>
 
