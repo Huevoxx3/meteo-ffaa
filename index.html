@@ -1,68 +1,84 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MET - FFAA - ALA23</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    .aerodromo {
-      background: white;
-      border-radius: 8px;
-      padding: 1em;
-      margin: 1em;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .metar, .taf {
-      margin-top: 0.5em;
-      font-family: monospace;
-      white-space: pre-wrap;
-    }
-    .checkbox-container {
-      padding: 1em;
-      max-width: 600px;
-      margin: auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
-    .checkbox-container label {
-      cursor: pointer;
-      font-weight: bold;
-      user-select: none;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MET - FFAA - ALA23</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0; padding: 0;
+  }
+  .aerodromo {
+    background: white;
+    border-radius: 8px;
+    padding: 1em;
+    margin: 1em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .metar, .taf {
+    margin-top: 0.5em;
+    font-family: monospace;
+    white-space: pre-wrap;
+  }
+  .checkbox-container {
+    padding: 1em;
+    max-width: 600px;
+    margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .checkbox-container label {
+    cursor: pointer;
+    font-weight: bold;
+    user-select: none;
+  }
+  #mostrar-btn {
+    display: block;
+    margin: 10px auto;
+    padding: 6px 14px;
+    font-size: 0.9em;
+    cursor: pointer;
+    border: 1px solid #0077cc;
+    background-color: white;
+    color: #0077cc;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  #mostrar-btn:hover {
+    background-color: #0077cc;
+    color: white;
+  }
+</style>
 </head>
 <body>
 
-  <h1 style="text-align:center;">Información Meteorológica - FFAA</h1>
+<h1 style="text-align:center;">Información Meteorológica - FFAA</h1>
 
-  <div class="checkbox-container">
-    <!-- Solo ICAO -->
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEAB"> LEAB</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LERT"> LERT</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEGT"> LEGT</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LETO"> LETO</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEMG"> LEMG</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LELC"> LELC</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LESA"> LESA</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEVD"> LEVD</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEZG"> LEZG</label>
-  </div>
+<div class="checkbox-container">
+  <label><input type="checkbox" class="aerodromo-toggle" value="LEAB"> LEAB</label>
+  <label><input type="checkbox" class="aerodromo-toggle" value="LERT"> LERT</label>
+  <label><input type="checkbox" class="aerodromo-toggle" value="LEGT"> LEGT</label>
+  <label><input type="checkbox" class="aerodromo-toggle" value="LETO"> LETO</label>
+  <label><input type="checkbox" class="aerodromo-toggle" value="LEMG"> LEMG</label>
+  <label><input type="checkbox" class="aerodromo-toggle" value="LELC"> LELC</label>
+  <label><input type="checkbox" class="aerodromo-toggle" value="LESA"> LESA</label>
+  <label><input type="checkbox" class="aerodromo-toggle" value="LEVD"> LEVD</label>
+  <label><input type="checkbox" class="aerodromo-toggle" value="LEZG"> LEZG</label>
+</div>
 
-  <div id="aerodromos-container"></div>
+<button id="mostrar-btn">Mostrar</button>
+
+<div id="aerodromos-container"></div>
 
 <script>
   const API_KEY = "SYybZksTKoBvX_zwxGfEV1PYOtstVhCVgysShs-_Vg4";
 
-  const alwaysVisible = ["LEBZ", "LPBJ", "LEMO"]; // Siempre mostrar estos
+  const alwaysVisible = ["LEBZ", "LPBJ", "LEMO"];
 
   const icaoNames = {
     LEBZ: "BADAJOZ",
@@ -80,8 +96,9 @@
   };
 
   const container = document.getElementById("aerodromos-container");
+  const mostrarBtn = document.getElementById("mostrar-btn");
 
-  // Control para evitar solapamientos
+  // Variable para controlar la versión de la carga y evitar solapamientos
   let updateVersion = 0;
 
   async function fetchData(icao) {
@@ -107,6 +124,7 @@
   function createCard(icao, metar, taf) {
     const card = document.createElement("div");
     card.className = "aerodromo";
+    card.id = `card-${icao}`;
     const name = icaoNames[icao] || icao;
     card.innerHTML = `
       <h3>${name} (${icao})</h3>
@@ -117,38 +135,35 @@
   }
 
   async function updateDisplay() {
-    // Incrementamos la versión al comenzar un nuevo update
-    const currentVersion = ++updateVersion;
+    updateVersion++;
+    const currentVersion = updateVersion;
 
-    // Limpiamos contenedor inmediatamente para evitar "parpadeos"
     container.innerHTML = "";
 
-    const selected = Array.from(document.querySelectorAll(".aerodromo-toggle:checked")).map(cb => cb.value);
+    // Tomamos los checkbox marcados
+    const checkedICAOs = Array.from(document.querySelectorAll(".aerodromo-toggle:checked"))
+      .map(cb => cb.value);
 
-    const totalICAOs = [...new Set([...alwaysVisible, ...selected])];
+    // Unimos siempre visibles + seleccionados y quitamos duplicados
+    const totalICAOsSet = new Set([...alwaysVisible, ...checkedICAOs]);
+    const totalICAOs = Array.from(totalICAOsSet);
 
-    // Fetch paralelo
     const fetchPromises = totalICAOs.map(icao => fetchData(icao));
     const results = await Promise.all(fetchPromises);
 
-    // Solo si es la última versión continua
     if (currentVersion !== updateVersion) {
-      // Hubo un update posterior, ignoramos este resultado
+      // Si hubo una actualización posterior cancelamos esta
       return;
     }
 
-    // Ahora agregamos las tarjetas al contenedor
-    results.forEach((data, i) => {
-      const card = createCard(totalICAOs[i], data.metar, data.taf);
+    for (let i = 0; i < totalICAOs.length; i++) {
+      const card = createCard(totalICAOs[i], results[i].metar, results[i].taf);
       container.appendChild(card);
-    });
+    }
   }
 
-  document.querySelectorAll(".aerodromo-toggle").forEach(cb => {
-    cb.addEventListener("change", updateDisplay);
-  });
-
-  updateDisplay();
+  // Solo se ejecuta al hacer click en el botón
+  mostrarBtn.addEventListener("click", updateDisplay);
 </script>
 
 </body>
