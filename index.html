@@ -149,15 +149,15 @@
   </div>
 
   <div class="checkbox-container">
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEAB"> LEAB</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LERT"> LERT</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEGT"> LEGT</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LETO"> LETO</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEMG"> LEMG</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LELC"> LELC</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LESA"> LESA</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEVD"> LEVD</label>
-    <label><input type="checkbox" class="aerodromo-toggle" value="LEZG"> LEZG</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEAB"> ALBACETE (LEAB)</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LERT"> ROTA (LERT)</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEGT"> GETAFE (LEGT)</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LETO"> TORREJÓN (LETO)</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEMG"> MÁLAGA (LEMG)</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LELC"> SAN JAVIER (LELC)</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LESA"> SALAMANCA (LESA)</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEVD"> VALLADOLID (LEVD)</label>
+    <label><input type="checkbox" class="aerodromo-toggle" value="LEZG"> ZARAGOZA (LEZG)</label>
   </div>
 
   <div id="aerodromos-container"></div>
@@ -186,38 +186,53 @@
 
     const container = document.getElementById("aerodromos-container");
 
-    const fetchData = async (icao) => {
-      const [metar, taf] = await Promise.all([
-        fetch(`https://avwx.rest/api/metar/${icao}?token=${API_KEY}`).then(res => res.json()),
-        fetch(`https://avwx.rest/api/taf/${icao}?token=${API_KEY}`).then(res => res.json())
-      ]);
-      return { metar: metar?.raw || "No METAR", taf: taf?.raw || "No TAF" };
-    };
+    async function fetchData(icao) {
+      try {
+        const [metarRes, tafRes] = await Promise.all([
+          fetch(`https://avwx.rest/api/metar/${icao}?token=${API_KEY}`),
+          fetch(`https://avwx.rest/api/taf/${icao}?token=${API_KEY}`)
+        ]);
+        const metar = await metarRes.json();
+        const taf = await tafRes.json();
+        return { metar: metar?.raw || "No METAR", taf: taf?.raw || "No TAF" };
+      } catch (error) {
+        return { metar: "Error cargando METAR", taf: "Error cargando TAF" };
+      }
+    }
 
-    const createCard = (icao, metar, taf) => {
+    function createCard(icao, metar, taf) {
       const card = document.createElement("div");
       card.className = "aerodromo";
       card.id = `card-${icao}`;
       const name = icaoNames[icao] || icao;
-      card.innerHTML = `<h3>${name} (${icao})</h3><div class="metar"><strong>METAR:</strong> ${metar}</div><div class="taf"><strong>TAF:</strong> ${taf}</div>`;
+      card.innerHTML = `
+        <h3>${name} (${icao})</h3>
+        <div class="metar"><strong>METAR:</strong> ${metar}</div>
+        <div class="taf"><strong>TAF:</strong> ${taf}</div>
+      `;
       return card;
-    };
+    }
 
-    const updateDisplay = async () => {
+    async function updateDisplay() {
       container.innerHTML = "";
+      // Obtener los seleccionados
       const selected = Array.from(document.querySelectorAll(".aerodromo-toggle:checked")).map(cb => cb.value);
-      const totalICAOs = [...alwaysVisible, ...selected];
+      // Unir con alwaysVisible sin repetir
+      const totalICAOs = [...new Set([...alwaysVisible, ...selected])];
+
       for (const icao of totalICAOs) {
         const data = await fetchData(icao);
         const card = createCard(icao, data.metar, data.taf);
         container.appendChild(card);
       }
-    };
+    }
 
+    // Listener para checkbox
     document.querySelectorAll(".aerodromo-toggle").forEach(cb => {
       cb.addEventListener("change", updateDisplay);
     });
 
+    // Carga inicial
     window.onload = updateDisplay;
   </script>
 
