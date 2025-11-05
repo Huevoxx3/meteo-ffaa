@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GRAMET AERO - FFAA - ALA23</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1em;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+    }
+
+    .corner-img {
+      width: 60px;
+      height: auto;
+    }
+
+    .title-block {
+      flex: 1;
+      text-align: center;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    .title-block .utc {
+      margin-top: 0.5em;
+      font-size: 0.9em;
+    }
+
+    iframe {
+      width: 100%;
+      height: 90vh;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+footer.disclaimer-footer {
+      text-align: center;
+      font-size: 0.75em;
+      color: rgba(0, 0, 0, 0.55);
+      margin-top: 3em;
+      padding: 1em 0;
+    }
+
+    footer.disclaimer-footer p {
+      margin: 0 auto;
+      max-width: 600px;
+      line-height: 1.6em;
+    }
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+      .title-block {
+        margin: 0.5em 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://github.com/Huevoxx3/sectores-kml/raw/main/231%20ESCUDO.jpg" alt="Logo Izquierdo" class="corner-img" />
+    <div class="title-block">
+      <h1>GRAMET AERO (OGIMET) - FFAA</h1>
+      <div id="utc-time" class="utc"></div>
+    </div>
+    <img src="https://github.com/Huevoxx3/sectores-kml/raw/main/232SQN.jpg" alt="Logo Derecho" class="corner-img" />
+  </header>
+
+  <iframe src="https://www.ogimet.com/gramet_aero.phtml"></iframe>
+<footer class="disclaimer-footer">
+    <p>
+      Esta página se utiliza con fines académicos y de entrenamiento.<br>
+      No procesa información meteorológica ni garantiza su actualización en tiempo real.<br>
+      Los datos son recopilados de fuentes públicas como AVWX y Ogimet.
+    </p>
+  </footer>
+  <script>
+    // Actualizar hora UTC igual que en la página principal
+    function updateUtcTime() {
+      const now = new Date();
+      const utcStr = now.toISOString().slice(0,19).replace('T',' ') + " UTC";
+      document.getElementById("utc-time").textContent = utcStr;
+    }
+    setInterval(updateUtcTime, 1000);
+    updateUtcTime();
+  </script>
+  
+</body>
+</html>
