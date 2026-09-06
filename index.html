@@ -21,6 +21,9 @@
       background-color: #fff;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
     .corner-img {
@@ -168,8 +171,8 @@
     /* === INDICADOR SUELTA LEBZ === */
 .suelta-status {
   width: calc(100% - 2em);
-  margin: 0.2em auto 0.8em auto;
-  padding: 6px 10px;
+  margin: 0em auto 0em auto;
+  padding: 1px 1px;
   text-align: center;
   font-size: 0.9em;
   font-weight: bold;
@@ -219,6 +222,11 @@
     <img src="https://github.com/Huevoxx3/sectores-kml/raw/main/232SQN.jpg" alt="Logo Derecho" class="corner-img" />
   </header>
 
+    <!-- INDICADOR DE SUELTA -->
+  <div id="suelta-status" class="suelta-status">
+    ⏳ CALCULANDO SUELTA...
+  </div>
+  
   <div class="main-buttons">
     <a class="main-button" href="https://www.windy.com/?38.878,-6.9707,7" target="_blank">Ver en Windy</a>
     <a class="main-button" href="http://intra.mdef.es/portal/intradef/Ministerio_de_Defensa/Organo_Central/Organo_Central/BOD?_nfls=false" target="_blank">Abrir el BOD</a>
@@ -232,11 +240,6 @@
     <div class="windy-right">
       <iframe src="https://embed.windy.com/embed2.html?lat=38.878&lon=-6.9707&zoom=8&detail=true"></iframe>
     </div>
-  </div>
-  
-  <!-- INDICADOR DE SUELTA -->
-  <div id="suelta-status" class="suelta-status">
-    ⏳ CALCULANDO SUELTA...
   </div>
   
   <div class="aerodromo-buttons" id="aero-buttons-container"></div>
